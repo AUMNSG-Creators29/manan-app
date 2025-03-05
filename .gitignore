@@ -22,3 +22,5 @@ firebase-error.log
 *.swo
 *.swp
 *~
+eval "$(ssh-agent -s)"
+eval "$(ssh-agent -s)".pub
