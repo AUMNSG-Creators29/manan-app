@@ -80,6 +80,7 @@ function App() {
     <div className="chat-container">
       <div className="chat-header">
         <h2>Manan: Reflective AI</h2>
+        <span className="message-count">Messages: {messages.length}</span>
       </div>
       <div className="chat-messages">
         {messages.map((msg, index) => (
