@@ -24,6 +24,7 @@ function App() {
   const [inputValue, setInputValue] = useState("");
   const [industry, setIndustry] = useState("Solopreneur/Tech");
   const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -78,11 +79,18 @@ function App() {
     alert("Reflection copied to clipboard!");
   };
 
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
-    <div className="chat-container">
+    <div className={`chat-container ${darkMode ? "dark" : ""}`}>
       <div className="chat-header">
         <h2>Manan: Reflective AI</h2>
         <span className="message-count">Messages: {messages.length}</span>
+        <button className="dark-mode-btn" onClick={toggleDarkMode}>
+          {darkMode ? "Light Mode" : "Dark Mode"}
+        </button>
       </div>
       <div className="chat-messages">
         {messages.map((msg, index) => (
