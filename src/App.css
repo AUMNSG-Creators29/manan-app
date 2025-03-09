@@ -62,3 +62,10 @@
   color: #007bff;
   font-style: italic;
 }
+.chat-input button.clear {
+  background-color: #dc3545;
+  margin-left: 10px;
+}
+.chat-input button.clear:hover {
+  background-color: #b02a37;
+}
