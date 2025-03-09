@@ -91,7 +91,7 @@ function App() {
         <button onClick={handleSend} disabled={loading}>
           {loading ? "Wait" : "Send"}
         </button>
-        <button onClick={handleClear}>Clear Chat</button>
+        <button className="clear" onClick={handleClear}>Clear Chat</button>
       </div>
     </div>
   );
