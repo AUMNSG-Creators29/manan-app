@@ -26,6 +26,13 @@
   padding: 10px;
 }
 
+.chat-input select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
 .chat-input input {
   flex: 1;
   padding: 10px;
@@ -50,6 +57,7 @@
 .message {
   margin-bottom: 10px;
 }
+
 .message.loading {
   color: #007bff;
   font-style: italic;
