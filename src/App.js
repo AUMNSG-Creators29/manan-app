@@ -25,6 +25,9 @@ function App() {
   const [industry, setIndustry] = useState("Solopreneur/Tech");
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState("");
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -32,11 +35,17 @@ function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setTyping(false), 1000);
+    return () => clearTimeout(timer);
+  }, [inputValue]);
+
   const getWordCount = (text) => text.split(/\s+/).filter(Boolean).length;
 
   const handleSend = async () => {
     if (inputValue.trim()) {
       const userMsg = { 
+        id: Date.now(), 
         sender: "You", 
         text: inputValue, 
         timestamp: new Date().toLocaleTimeString(),
@@ -52,6 +61,7 @@ function App() {
         setMessages((prev) => [
           ...prev,
           { 
+            id: Date.now() + 1, 
             sender: "Manan", 
             text: result.data.reflection, 
             timestamp: new Date().toLocaleTimeString(),
@@ -63,6 +73,7 @@ function App() {
         setMessages((prev) => [
           ...prev,
           { 
+            id: Date.now() + 1, 
             sender: "Manan", 
             text: errorText, 
             timestamp: new Date().toLocaleTimeString(),
@@ -89,6 +100,38 @@ function App() {
     setDarkMode(!darkMode);
   };
 
+  const handleEdit = (id, text) => {
+    setEditingId(id);
+    setEditText(text);
+  };
+
+  const handleSaveEdit = (id) => {
+    setMessages(messages.map((msg) =>
+      msg.id === id
+        ? { ...msg, text: editText, wordCount: getWordCount(editText) }
+        : msg
+    ));
+    setEditingId(null);
+    setEditText("");
+  };
+
+  const handleDelete = (id) => {
+    setMessages(messages.filter((msg) => msg.id !== id));
+  };
+
+  const handleExport = () => {
+    const chatText = messages
+      .map((msg) => `${msg.sender} [${msg.timestamp}]: ${msg.text} (${msg.wordCount} words)`)
+      .join("\n");
+    const blob = new Blob([chatText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "manan_chat.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className={`chat-container ${darkMode ? "dark" : ""}`}>
       <div className="chat-header">
@@ -97,23 +140,53 @@ function App() {
         <button className="dark-mode-btn" onClick={toggleDarkMode}>
           {darkMode ? "Light Mode" : "Dark Mode"}
         </button>
+        <button className="export-btn" onClick={handleExport}>
+          Export Chat
+        </button>
       </div>
       <div className="chat-messages">
-        {messages.map((msg, index) => (
-          <div key={index} className="message">
-            <strong>{msg.sender}</strong> <span className="timestamp">[{msg.timestamp}]</span>: {msg.text}
-            <span className="word-count">({msg.wordCount} words)</span>
-            {msg.sender === "Manan" && (
-              <button
-                className="copy-btn"
-                onClick={() => handleCopy(msg.text)}
-              >
-                Copy
-              </button>
+        {messages.map((msg) => (
+          <div key={msg.id} className="message">
+            {editingId === msg.id ? (
+              <>
+                <input
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                />
+                <button onClick={() => handleSaveEdit(msg.id)}>Save</button>
+              </>
+            ) : (
+              <>
+                <strong>{msg.sender}</strong> <span className="timestamp">[{msg.timestamp}]</span>: {msg.text}
+                <span className="word-count">({msg.wordCount} words)</span>
+                {msg.sender === "You" && (
+                  <button
+                    className="edit-btn"
+                    onClick={() => handleEdit(msg.id, msg.text)}
+                  >
+                    Edit
+                  </button>
+                )}
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDelete(msg.id)}
+                >
+                  Delete
+                </button>
+                {msg.sender === "Manan" && (
+                  <button
+                    className="copy-btn"
+                    onClick={() => handleCopy(msg.text)}
+                  >
+                    Copy
+                  </button>
+                )}
+              </>
             )}
           </div>
         ))}
         {loading && <div className="message loading">Manan: Thinking...</div>}
+        {typing && !loading && <div className="message typing">You are typing...</div>}
         <div ref={messagesEndRef} />
       </div>
       <div className="chat-input">
@@ -128,7 +201,10 @@ function App() {
         <input
           type="text"
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            setTyping(true);
+          }}
           placeholder="Type your thoughts..."
           disabled={loading}
         />
