@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import { initializeApp } from "firebase/app";
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -24,9 +24,11 @@ function App() {
   const [inputValue, setInputValue] = useState("");
   const [industry, setIndustry] = useState("Solopreneur/Tech");
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     localStorage.setItem("mananMessages", JSON.stringify(messages));
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSend = async () => {
@@ -97,6 +99,7 @@ function App() {
           </div>
         ))}
         {loading && <div className="message loading">Manan: Thinking...</div>}
+        <div ref={messagesEndRef} />
       </div>
       <div className="chat-input">
         <select
