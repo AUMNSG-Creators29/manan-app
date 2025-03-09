@@ -59,6 +59,11 @@ function App() {
     localStorage.removeItem("mananMessages");
   };
 
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+    alert("Reflection copied to clipboard!");
+  };
+
   return (
     <div className="chat-container">
       <div className="chat-header">
@@ -68,6 +73,14 @@ function App() {
         {messages.map((msg, index) => (
           <div key={index} className="message">
             <strong>{msg.sender}:</strong> {msg.text}
+            {msg.sender === "Manan" && (
+              <button
+                className="copy-btn"
+                onClick={() => handleCopy(msg.text)}
+              >
+                Copy
+              </button>
+            )}
           </div>
         ))}
         {loading && <div className="message loading">Manan: Thinking...</div>}
@@ -91,7 +104,9 @@ function App() {
         <button onClick={handleSend} disabled={loading}>
           {loading ? "Wait" : "Send"}
         </button>
-        <button className="clear" onClick={handleClear}>Clear Chat</button>
+        <button className="clear" onClick={handleClear}>
+          Clear Chat
+        </button>
       </div>
     </div>
   );
