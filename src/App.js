@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import { initializeApp } from "firebase/app";
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -17,10 +17,17 @@ const functions = getFunctions(app);
 const mananFunction = httpsCallable(functions, "manan");
 
 function App() {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem("mananMessages");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [inputValue, setInputValue] = useState("");
   const [industry, setIndustry] = useState("Solopreneur/Tech");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem("mananMessages", JSON.stringify(messages));
+  }, [messages]);
 
   const handleSend = async () => {
     if (inputValue.trim()) {
@@ -45,6 +52,11 @@ function App() {
       setLoading(false);
       setInputValue("");
     }
+  };
+
+  const handleClear = () => {
+    setMessages([]);
+    localStorage.removeItem("mananMessages");
   };
 
   return (
@@ -79,6 +91,7 @@ function App() {
         <button onClick={handleSend} disabled={loading}>
           {loading ? "Wait" : "Send"}
         </button>
+        <button onClick={handleClear}>Clear Chat</button>
       </div>
     </div>
   );
