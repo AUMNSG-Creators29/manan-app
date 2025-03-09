@@ -32,12 +32,15 @@ function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const getWordCount = (text) => text.split(/\s+/).filter(Boolean).length;
+
   const handleSend = async () => {
     if (inputValue.trim()) {
       const userMsg = { 
         sender: "You", 
         text: inputValue, 
-        timestamp: new Date().toLocaleTimeString() 
+        timestamp: new Date().toLocaleTimeString(),
+        wordCount: getWordCount(inputValue)
       };
       setMessages([...messages, userMsg]);
       setLoading(true);
@@ -51,16 +54,19 @@ function App() {
           { 
             sender: "Manan", 
             text: result.data.reflection, 
-            timestamp: new Date().toLocaleTimeString() 
+            timestamp: new Date().toLocaleTimeString(),
+            wordCount: getWordCount(result.data.reflection)
           },
         ]);
       } catch (error) {
+        const errorText = `Oops! Something went wrong: ${error.message}`;
         setMessages((prev) => [
           ...prev,
           { 
             sender: "Manan", 
-            text: `Oops! Something went wrong: ${error.message}`, 
-            timestamp: new Date().toLocaleTimeString() 
+            text: errorText, 
+            timestamp: new Date().toLocaleTimeString(),
+            wordCount: getWordCount(errorText)
           },
         ]);
       }
@@ -96,6 +102,7 @@ function App() {
         {messages.map((msg, index) => (
           <div key={index} className="message">
             <strong>{msg.sender}</strong> <span className="timestamp">[{msg.timestamp}]</span>: {msg.text}
+            <span className="word-count">({msg.wordCount} words)</span>
             {msg.sender === "Manan" && (
               <button
                 className="copy-btn"
