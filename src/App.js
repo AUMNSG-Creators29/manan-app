@@ -31,7 +31,11 @@ function App() {
 
   const handleSend = async () => {
     if (inputValue.trim()) {
-      const userMsg = { sender: "You", text: inputValue };
+      const userMsg = { 
+        sender: "You", 
+        text: inputValue, 
+        timestamp: new Date().toLocaleTimeString() 
+      };
       setMessages([...messages, userMsg]);
       setLoading(true);
       try {
@@ -41,12 +45,20 @@ function App() {
         });
         setMessages((prev) => [
           ...prev,
-          { sender: "Manan", text: result.data.reflection },
+          { 
+            sender: "Manan", 
+            text: result.data.reflection, 
+            timestamp: new Date().toLocaleTimeString() 
+          },
         ]);
       } catch (error) {
         setMessages((prev) => [
           ...prev,
-          { sender: "Manan", text: `Oops! Something went wrong: ${error.message}` },
+          { 
+            sender: "Manan", 
+            text: `Oops! Something went wrong: ${error.message}`, 
+            timestamp: new Date().toLocaleTimeString() 
+          },
         ]);
       }
       setLoading(false);
@@ -72,7 +84,7 @@ function App() {
       <div className="chat-messages">
         {messages.map((msg, index) => (
           <div key={index} className="message">
-            <strong>{msg.sender}:</strong> {msg.text}
+            <strong>{msg.sender}</strong> <span className="timestamp">[{msg.timestamp}]</span>: {msg.text}
             {msg.sender === "Manan" && (
               <button
                 className="copy-btn"
