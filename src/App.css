@@ -50,3 +50,7 @@
 .message {
   margin-bottom: 10px;
 }
+.message.loading {
+  color: #007bff;
+  font-style: italic;
+}
