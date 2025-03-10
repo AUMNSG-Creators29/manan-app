@@ -1,10 +1,68 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from "react-router-dom";
 import Chat from "./Chat";
 import Reflection from "./Reflection";
 import MindMap from "./MindMap";
 import Calendar from "./Calendar";
 import "./App.css";
+
+function ChatWrapper() {
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem("mananMessages");
+    return saved ? JSON.parse(saved) : [
+      { id: 0, sender: "Manan", text: "Welcome! I’m Manan, your reflective AI. Type your thoughts to get started.", timestamp: new Date().toLocaleTimeString(), wordCount: 14 }
+    ];
+  });
+  const [inputValue, setInputValue] = useState("");
+  const [industry, setIndustry] = useState("Solopreneur/Tech");
+  const [loading, setLoading] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showHistory, setShowHistory] = useState(true);
+  const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.setItem("mananMessages", JSON.stringify(messages));
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setTyping(false), 1000);
+    return () => clearTimeout(timer);
+  }, [inputValue]);
+
+  const filteredMessages = messages.filter((msg) =>
+    msg.text.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <Chat
+      messages={showHistory ? filteredMessages : []}
+      setMessages={setMessages}
+      inputValue={inputValue}
+      setInputValue={setInputValue}
+      industry={industry}
+      setIndustry={setIndustry}
+      loading={loading}
+      setLoading={setLoading}
+      typing={typing}
+      setTyping={setTyping}
+      editingId={editingId}
+      setEditingId={setEditingId}
+      editText={editText}
+      setEditText={setEditText}
+      messagesEndRef={messagesEndRef}
+      navigate={navigate}
+      searchQuery={searchQuery}
+      setSearchQuery={setSearchQuery}
+      showHistory={showHistory}
+      setShowHistory={setShowHistory}
+    />
+  );
+}
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -16,7 +74,7 @@ function App() {
     <Router>
       <div className={`app-container ${darkMode ? "dark" : ""}`}>
         <Routes>
-          <Route path="/" element={<Chat />} />
+          <Route path="/" element={<ChatWrapper />} />
           <Route path="/reflection" element={<Reflection />} />
           <Route path="/mindmap" element={<MindMap />} />
           <Route path="/calendar" element={<Calendar />} />
