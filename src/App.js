@@ -1,35 +1,35 @@
-import React, { useState, useEffect, useRef } from "react";
-import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from "react-router-dom";
-import Chat from "./Chat";
-import Reflection from "./Reflection";
-import MindMap from "./MindMap";
-import Calendar from "./Calendar";
-import "./App.css";
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Chat from './Chat';
+import Reflection from './Reflection';
+import MindMap from './MindMap';
+import Calendar from './Calendar';
+import './App.css';
 
 function ChatWrapper() {
   const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem("mananMessages");
+    const saved = localStorage.getItem('mananMessages');
     return saved ? JSON.parse(saved) : [
-      { id: 0, sender: "Manan", text: "Welcome! I’m Manan, your reflective AI. Type your thoughts to get started.", timestamp: new Date().toLocaleTimeString(), wordCount: 14 }
+      { id: 0, sender: 'Manan', text: 'Welcome! I’m Manan, your reflective AI. Type your thoughts to get started.', timestamp: new Date().toLocaleTimeString(), wordCount: 14 },
     ];
   });
-  const [inputValue, setInputValue] = useState("");
-  const [industry, setIndustry] = useState("Solopreneur/Tech");
+  const [inputValue, setInputValue] = useState('');
+  const [industry, setIndustry] = useState('Solopreneur/Tech');
   const [loading, setLoading] = useState(false);
   const [typing, setTyping] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [editText, setEditText] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [editText, setEditText] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showHistory, setShowHistory] = useState(true);
-  const messagesEndRef = useRef(null);
-  const navigate = useNavigate();
+  const messagesEndRef = React.useRef(null);
 
-  useEffect(() => {
-    localStorage.setItem("mananMessages", JSON.stringify(messages));
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // Simplified useEffect for localStorage and scroll
+  React.useEffect(() => {
+    localStorage.setItem('mananMessages', JSON.stringify(messages));
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const timer = setTimeout(() => setTyping(false), 1000);
     return () => clearTimeout(timer);
   }, [inputValue]);
@@ -55,7 +55,6 @@ function ChatWrapper() {
       editText={editText}
       setEditText={setEditText}
       messagesEndRef={messagesEndRef}
-      navigate={navigate}
       searchQuery={searchQuery}
       setSearchQuery={setSearchQuery}
       showHistory={showHistory}
@@ -72,7 +71,7 @@ function App() {
 
   return (
     <Router>
-      <div className={`app-container ${darkMode ? "dark" : ""}`}>
+      <div className={`app-container ${darkMode ? 'dark' : ''}`}>
         <Routes>
           <Route path="/" element={<ChatWrapper />} />
           <Route path="/reflection" element={<Reflection />} />
@@ -93,7 +92,7 @@ function App() {
             <Link to="/payments" onClick={() => setMenuOpen(false)}>Payments</Link>
             <Link to="/help" onClick={() => setMenuOpen(false)}>Help</Link>
             <Link to="/about" onClick={() => setMenuOpen(false)}>About</Link>
-            <button onClick={toggleDarkMode}>{darkMode ? "Light Mode" : "Dark Mode"}</button>
+            <button onClick={toggleDarkMode}>{darkMode ? 'Light Mode' : 'Dark Mode'}</button>
           </div>
         )}
       </div>
