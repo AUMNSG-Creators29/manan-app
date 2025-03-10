@@ -31,6 +31,7 @@ function Chat() {
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showHistory, setShowHistory] = useState(true);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
@@ -160,9 +161,12 @@ function Chat() {
           placeholder="Search messages..."
           className="search-input"
         />
+        <button className="history-btn" onClick={() => setShowHistory(!showHistory)}>
+          {showHistory ? "Hide History" : "Show History"}
+        </button>
       </div>
       <div className="chat-messages">
-        {filteredMessages.map((msg) => (
+        {showHistory && filteredMessages.map((msg) => (
           <div key={msg.id} className="message">
             {editingId === msg.id ? (
               <>
