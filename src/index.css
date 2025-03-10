@@ -1,0 +1,40 @@
+.chat-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.messages {
+  height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.message {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.message.User {
+  background-color: #e0e0e0;
+}
+
+.message.Manan {
+  background-color: #d0f0d0;
+}
+
+.input-container {
+  display: flex;
+  gap: 10px;
+}
+
+input, button {
+  padding: 5px;
+}
+
+.controls {
+  margin-bottom: 10px;
+}
