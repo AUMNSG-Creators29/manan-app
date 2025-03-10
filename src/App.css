@@ -264,3 +264,57 @@
 .menu button:hover {
   background-color: #888;
 }
+.search-input {
+  margin-left: 10px;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.app-container.dark .search-input {
+  background-color: #555;
+  color: #fff;
+  border: 1px solid #666;
+}
+.history-btn {
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: #fd7e14;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.history-btn:hover {
+  background-color: #e06c00;
+}
+.app-container.dark .chat-container {
+  background-color: #444;
+  color: #fff;
+}
+.app-container.dark .chat-header {
+  background-color: #1a73e8;
+}
+.app-container.dark .chat-messages {
+  border-bottom: 1px solid #555;
+}
+.app-container.dark .chat-input input,
+.app-container.dark .chat-input select {
+  background-color: #555;
+  color: #fff;
+  border: 1px solid #666;
+}
+.app-container.dark .message.loading {
+  color: #1a73e8;
+}
+.app-container.dark .timestamp {
+  color: #bbb;
+}
+.app-container.dark .word-count {
+  color: #ccc;
+}
+.app-container.dark .message input {
+  background-color: #555;
+  color: #fff;
+  border: 1px solid #666;
+}
