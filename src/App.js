@@ -21,7 +21,15 @@ const mananFunction = httpsCallable(functions, "manan");
 function Chat() {
   const [messages, setMessages] = useState(() => {
     const saved = localStorage.getItem("mananMessages");
-    return saved ? JSON.parse(saved) : [];
+    return saved ? JSON.parse(saved) : [
+      { 
+        id: 0, 
+        sender: "Manan", 
+        text: "Welcome! I’m Manan, your reflective AI. Type your thoughts to get started.", 
+        timestamp: new Date().toLocaleTimeString(), 
+        wordCount: 14 
+      }
+    ];
   });
   const [inputValue, setInputValue] = useState("");
   const [industry, setIndustry] = useState("Solopreneur/Tech");
