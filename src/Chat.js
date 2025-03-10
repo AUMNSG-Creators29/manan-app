@@ -9,45 +9,45 @@ function Chat({
 }) {
   const getWordCount = (text) => text.split(/\s+/).filter(Boolean).length;
 
-  const handleSend = async () => {
-    if (inputValue.trim()) {
-      const userMsg = { 
-        id: Date.now(), 
-        sender: "You", 
-        text: inputValue, 
+const handleSend = async () => {
+  if (inputValue.trim()) {
+    const userMsg = { 
+      id: Date.now(), 
+      sender: "You", 
+      text: inputValue, 
+      timestamp: new Date().toLocaleTimeString(),
+      wordCount: getWordCount(inputValue)
+    };
+    setMessages([...messages, userMsg]);
+    setLoading(true);
+    try {
+      // Placeholder until Blaze: simulate DeepSeek response
+      const response = await fetch("http://localhost:5001/manan-app/us-central1/manan", { 
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: inputValue, metadata: { industry } })
+      });
+      const result = await response.json();
+      const mananMsg = { 
+        id: Date.now() + 1, 
+        sender: "Manan", 
+        text: result.reflection || "Simulated response: Great idea!", 
         timestamp: new Date().toLocaleTimeString(),
-        wordCount: getWordCount(inputValue)
+        wordCount: getWordCount(result.reflection || "Simulated response: Great idea!")
       };
-      setMessages([...messages, userMsg]);
-      setLoading(true);
-      try {
-        const response = await fetch("YOUR_BACKEND_URL/manan", { // Placeholder until Blaze
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: inputValue, metadata: { industry } })
-        });
-        const result = await response.json();
-        const mananMsg = { 
-          id: Date.now() + 1, 
-          sender: "Manan", 
-          text: result.reflection, 
-          timestamp: new Date().toLocaleTimeString(),
-          wordCount: getWordCount(result.reflection)
-        };
-        setMessages((prev) => [...prev, mananMsg]);
-        navigate("/reflection", { state: { reflection: result.reflection } });
-      } catch (error) {
-        const errorText = `Oops! Something went wrong: ${error.message}`;
-        setMessages((prev) => [
-          ...prev,
-          { id: Date.now() + 1, sender: "Manan", text: errorText, timestamp: new Date().toLocaleTimeString(), wordCount: getWordCount(errorText) },
-        ]);
-      }
-      setLoading(false);
-      setInputValue("");
+      setMessages((prev) => [...prev, mananMsg]);
+      navigate("/reflection", { state: { reflection: result.reflection || "Simulated response: Great idea!" } });
+    } catch (error) {
+      const errorText = `Oops! Something went wrong: ${error.message}`;
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, sender: "Manan", text: errorText, timestamp: new Date().toLocaleTimeString(), wordCount: getWordCount(errorText) },
+      ]);
     }
-  };
-
+    setLoading(false);
+    setInputValue("");
+  }
+};
   const handleClear = () => {
     setMessages([]);
     localStorage.removeItem("mananMessages");
