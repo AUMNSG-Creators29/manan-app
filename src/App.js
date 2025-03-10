@@ -154,6 +154,11 @@ function Chat() {
   return (
     <div className={`chat-container ${darkMode ? "dark" : ""}`}>
       <div className="chat-header">
+        <img
+          src="https://via.placeholder.com/40?text=M" // Replace with your logo URL later
+          alt="Manan Logo"
+          className="company-logo"
+        />
         <h2>Manan: Reflective AI</h2>
         <span className="message-count">Messages: {messages.length}</span>
         <button className="dark-mode-btn" onClick={toggleDarkMode}>
