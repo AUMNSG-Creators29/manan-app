@@ -1,48 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import "./Chat.css";
-import { initializeApp } from "firebase/app";
-import { getFunctions, httpsCallable } from "firebase/functions";
 
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "manan-9fea8.firebaseapp.com",
-  projectId: "manan-9fea8",
-  storageBucket: "manan-9fea8.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
-};
-
-const app = initializeApp(firebaseConfig);
-const functions = getFunctions(app);
-const mananFunction = httpsCallable(functions, "manan");
-
-function Chat() {
-  const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem("mananMessages");
-    return saved ? JSON.parse(saved) : [
-      { id: 0, sender: "Manan", text: "Welcome! I’m Manan, your reflective AI. Type your thoughts to get started.", timestamp: new Date().toLocaleTimeString(), wordCount: 14 }
-    ];
-  });
-  const [inputValue, setInputValue] = useState("");
-  const [industry, setIndustry] = useState("Solopreneur/Tech");
-  const [loading, setLoading] = useState(false);
-  const [typing, setTyping] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [editText, setEditText] = useState("");
-  const messagesEndRef = useRef(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    localStorage.setItem("mananMessages", JSON.stringify(messages));
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setTyping(false), 1000);
-    return () => clearTimeout(timer);
-  }, [inputValue]);
-
+function Chat({
+  messages, setMessages, inputValue, setInputValue, industry, setIndustry,
+  loading, setLoading, typing, setTyping, editingId, setEditingId,
+  editText, setEditText, messagesEndRef, navigate, searchQuery, setSearchQuery,
+  showHistory, setShowHistory
+}) {
   const getWordCount = (text) => text.split(/\s+/).filter(Boolean).length;
 
   const handleSend = async () => {
@@ -57,19 +21,21 @@ function Chat() {
       setMessages([...messages, userMsg]);
       setLoading(true);
       try {
-        const result = await mananFunction({
-          text: inputValue,
-          metadata: { industry },
+        const response = await fetch("YOUR_BACKEND_URL/manan", { // Placeholder until Blaze
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: inputValue, metadata: { industry } })
         });
+        const result = await response.json();
         const mananMsg = { 
           id: Date.now() + 1, 
           sender: "Manan", 
-          text: result.data.reflection, 
+          text: result.reflection, 
           timestamp: new Date().toLocaleTimeString(),
-          wordCount: getWordCount(result.data.reflection)
+          wordCount: getWordCount(result.reflection)
         };
         setMessages((prev) => [...prev, mananMsg]);
-        navigate("/reflection", { state: { reflection: result.data.reflection } });
+        navigate("/reflection", { state: { reflection: result.reflection } });
       } catch (error) {
         const errorText = `Oops! Something went wrong: ${error.message}`;
         setMessages((prev) => [
@@ -118,6 +84,16 @@ function Chat() {
       <div className="chat-header">
         <img src="https://via.placeholder.com/40?text=M" alt="Manan Logo" className="company-logo" />
         <h2>Manan Chat</h2>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search messages..."
+          className="search-input"
+        />
+        <button className="history-btn" onClick={() => setShowHistory(!showHistory)}>
+          {showHistory ? "Hide History" : "Show History"}
+        </button>
       </div>
       <div className="chat-messages">
         {messages.map((msg) => (
