@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import "./MindMap.css";
 
 function MindMap() {
@@ -15,7 +15,6 @@ function MindMap() {
     <div className="mindmap-container">
       <h2>Mind Map</h2>
       <pre className="mindmap">{generateMindMap(reflection)}</pre>
-      <Link to="/">Back to Chat</Link>
     </div>
   );
 }
