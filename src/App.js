@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
+import { BrowserRouter as Router, Route, Routes, Link, useNavigate } from "react-router-dom";
 import "./App.css";
 import { initializeApp } from "firebase/app";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import MindMap from "./MindMap";
 
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
@@ -16,7 +18,7 @@ const app = initializeApp(firebaseConfig);
 const functions = getFunctions(app);
 const mananFunction = httpsCallable(functions, "manan");
 
-function App() {
+function Chat() {
   const [messages, setMessages] = useState(() => {
     const saved = localStorage.getItem("mananMessages");
     return saved ? JSON.parse(saved) : [];
@@ -29,6 +31,7 @@ function App() {
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
   const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     localStorage.setItem("mananMessages", JSON.stringify(messages));
@@ -58,16 +61,14 @@ function App() {
           text: inputValue,
           metadata: { industry },
         });
-        setMessages((prev) => [
-          ...prev,
-          { 
-            id: Date.now() + 1, 
-            sender: "Manan", 
-            text: result.data.reflection, 
-            timestamp: new Date().toLocaleTimeString(),
-            wordCount: getWordCount(result.data.reflection)
-          },
-        ]);
+        const mananMsg = { 
+          id: Date.now() + 1, 
+          sender: "Manan", 
+          text: result.data.reflection, 
+          timestamp: new Date().toLocaleTimeString(),
+          wordCount: getWordCount(result.data.reflection)
+        };
+        setMessages((prev) => [...prev, mananMsg]);
       } catch (error) {
         const errorText = `Oops! Something went wrong: ${error.message}`;
         setMessages((prev) => [
@@ -132,6 +133,10 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const handleMindMap = (reflection) => {
+    navigate("/mindmap", { state: { reflection } });
+  };
+
   return (
     <div className={`chat-container ${darkMode ? "dark" : ""}`}>
       <div className="chat-header">
@@ -174,12 +179,20 @@ function App() {
                   Delete
                 </button>
                 {msg.sender === "Manan" && (
-                  <button
-                    className="copy-btn"
-                    onClick={() => handleCopy(msg.text)}
-                  >
-                    Copy
-                  </button>
+                  <>
+                    <button
+                      className="copy-btn"
+                      onClick={() => handleCopy(msg.text)}
+                    >
+                      Copy
+                    </button>
+                    <button
+                      className="mindmap-btn"
+                      onClick={() => handleMindMap(msg.text)}
+                    >
+                      Mind Map
+                    </button>
+                  </>
                 )}
               </>
             )}
@@ -216,6 +229,17 @@ function App() {
         </button>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Chat />} />
+        <Route path="/mindmap" element={<MindMap />} />
+      </Routes>
+    </Router>
   );
 }
 
