@@ -30,6 +30,7 @@ function Chat() {
   const [typing, setTyping] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
@@ -137,6 +138,10 @@ function Chat() {
     navigate("/mindmap", { state: { reflection } });
   };
 
+  const filteredMessages = messages.filter((msg) =>
+    msg.text.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className={`chat-container ${darkMode ? "dark" : ""}`}>
       <div className="chat-header">
@@ -148,9 +153,16 @@ function Chat() {
         <button className="export-btn" onClick={handleExport}>
           Export Chat
         </button>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search messages..."
+          className="search-input"
+        />
       </div>
       <div className="chat-messages">
-        {messages.map((msg) => (
+        {filteredMessages.map((msg) => (
           <div key={msg.id} className="message">
             {editingId === msg.id ? (
               <>
