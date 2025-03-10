@@ -3,7 +3,7 @@ const axios = require("axios");
 
 exports.manan = functions.https.onCall(async (data, context) => {
   const { text, metadata } = data;
-  const apiKey = "YOUR_DEEPSEEK_API_KEY"; // Replace with your key locally, swap before deploy
+  const apiKey = "***REMOVED***"; // Replace with your real key
   try {
     const response = await axios.post(
       "https://api.deepseek.com/v1/chat/completions", // Check DeepSeek docs for exact endpoint
@@ -20,3 +20,4 @@ exports.manan = functions.https.onCall(async (data, context) => {
     return { error: "Failed to generate reflection" };
   }
 });
+
