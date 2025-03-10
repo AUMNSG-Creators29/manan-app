@@ -9,46 +9,46 @@ function Chat({
 }) {
   const getWordCount = (text) => text.split(/\s+/).filter(Boolean).length;
 
-const handleSend = async () => {
-  if (inputValue.trim()) {
-    const userMsg = { 
-      id: Date.now(), 
-      sender: "You", 
-      text: inputValue, 
-      timestamp: new Date().toLocaleTimeString(),
-      wordCount: getWordCount(inputValue)
-    };
-    setMessages([...messages, userMsg]);
-    setLoading(true);
+const handleSendMessage = async () => {
+  if (input.trim() === "") return;
+  const userMessage = { sender: "user", text: input, timestamp: new Date().toLocaleTimeString() };
+  setMessages([...messages, userMessage]);
+
+  // Temporary Netlify test (remove this block when reverting to Firebase)
+  if (process.env.NODE_ENV === "netlify-test") {
     try {
-      // Placeholder until Blaze: simulate DeepSeek response
-      const response = await fetch("http://localhost:5001/manan-app/us-central1/manan", { 
+      const response = await fetch("/.netlify/functions/manan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: inputValue, metadata: { industry } })
+        body: JSON.stringify({ text: input, metadata: { industry: "tech" } }),
       });
-      const result = await response.json();
-      const mananMsg = { 
-        id: Date.now() + 1, 
-        sender: "Manan", 
-        text: result.reflection || "Simulated response: Great idea!", 
-        timestamp: new Date().toLocaleTimeString(),
-        wordCount: getWordCount(result.reflection || "Simulated response: Great idea!")
-      };
-      setMessages((prev) => [...prev, mananMsg]);
-      navigate("/reflection", { state: { reflection: result.reflection || "Simulated response: Great idea!" } });
+      const data = await response.json();
+      const botMessage = { sender: "bot", text: data.reflection || "Error fetching reflection", timestamp: new Date().toLocaleTimeString() };
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
     } catch (error) {
-      const errorText = `Oops! Something went wrong: ${error.message}`;
-      setMessages((prev) => [
-        ...prev,
-        { id: Date.now() + 1, sender: "Manan", text: errorText, timestamp: new Date().toLocaleTimeString(), wordCount: getWordCount(errorText) },
-      ]);
+      console.error("Netlify test error:", error);
     }
-    setLoading(false);
-    setInputValue("");
+  } else {
+    // Original Firebase call (keep this for reversion)
+    try {
+      const response = await fetch("https://your-firebase-app.cloudfunctions.net/manan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: input, metadata: { industry: "tech" } }),
+      });
+      const data = await response.json();
+      const botMessage = { sender: "bot", text: data.reflection, timestamp: new Date().toLocaleTimeString() };
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
+    } catch (error) {
+      console.error("Firebase error:", error);
+    }
   }
+  setInput("");
 };
-  const handleClear = () => {
+
+
+
+const handleClear = () => {
     setMessages([]);
     localStorage.removeItem("mananMessages");
   };
