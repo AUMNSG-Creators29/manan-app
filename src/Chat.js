@@ -1,146 +1,113 @@
-import React from "react";
-import "./Chat.css";
+import React from 'react';
 
 function Chat({
-  messages, setMessages, inputValue, setInputValue, industry, setIndustry,
-  loading, setLoading, typing, setTyping, editingId, setEditingId,
-  editText, setEditText, messagesEndRef, navigate, searchQuery, setSearchQuery,
-  showHistory, setShowHistory
+  messages,
+  setMessages,
+  inputValue,
+  setInputValue,
+  industry,
+  setIndustry,
+  loading,
+  setLoading,
+  typing,
+  setTyping,
+  editingId,
+  setEditingId,
+  editText,
+  setEditText,
+  messagesEndRef,
+  searchQuery,
+  setSearchQuery,
+  showHistory,
+  setShowHistory,
 }) {
-  const getWordCount = (text) => text.split(/\s+/).filter(Boolean).length;
-
-const handleSendMessage = async () => {
-  if (input.trim() === "") return;
-  const userMessage = { sender: "user", text: input, timestamp: new Date().toLocaleTimeString() };
-  setMessages([...messages, userMessage]);
-
-  // Temporary Netlify test (remove this block when reverting to Firebase)
-  if (process.env.NODE_ENV === "netlify-test") {
-    try {
-      const response = await fetch("/.netlify/functions/manan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: input, metadata: { industry: "tech" } }),
-      });
-      const data = await response.json();
-      const botMessage = { sender: "bot", text: data.reflection || "Error fetching reflection", timestamp: new Date().toLocaleTimeString() };
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
-    } catch (error) {
-      console.error("Netlify test error:", error);
-    }
-  } else {
-    // Original Firebase call (keep this for reversion)
-    try {
-      const response = await fetch("https://your-firebase-app.cloudfunctions.net/manan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: input, metadata: { industry: "tech" } }),
-      });
-      const data = await response.json();
-      const botMessage = { sender: "bot", text: data.reflection, timestamp: new Date().toLocaleTimeString() };
-      setMessages((prevMessages) => [...prevMessages, botMessage]);
-    } catch (error) {
-      console.error("Firebase error:", error);
-    }
-  }
-  setInput("");
-};
-
-
-
-const handleClear = () => {
-    setMessages([]);
-    localStorage.removeItem("mananMessages");
+  const handleSendMessage = () => {
+    if (inputValue.trim() === '') return;
+    const newMessage = {
+      id: Date.now(),
+      sender: 'User',
+      text: inputValue,
+      timestamp: new Date().toLocaleTimeString(),
+      wordCount: inputValue.trim().split(/\s+/).length,
+    };
+    setMessages((prev) => [...prev, newMessage]);
+    setInputValue('');
+    setTyping(true);
   };
 
-  const handleCopy = (text) => {
-    navigator.clipboard.writeText(text);
-    alert("Reflection copied to clipboard!");
-  };
-
-  const handleEdit = (id, text) => {
+  const handleEdit = (id) => {
+    const message = messages.find((msg) => msg.id === id);
     setEditingId(id);
-    setEditText(text);
+    setEditText(message.text);
   };
 
-  const handleSaveEdit = (id) => {
-    setMessages(messages.map((msg) =>
-      msg.id === id ? { ...msg, text: editText, wordCount: getWordCount(editText) } : msg
-    ));
+  const handleSaveEdit = () => {
+    setMessages((prev) =>
+      prev.map((msg) => (msg.id === editingId ? { ...msg, text: editText } : msg))
+    );
     setEditingId(null);
-    setEditText("");
-  };
-
-  const handleDelete = (id) => {
-    setMessages(messages.filter((msg) => msg.id !== id));
-  };
-
-  const handleMindMap = (reflection) => {
-    navigate("/mindmap", { state: { reflection } });
+    setEditText('');
   };
 
   return (
     <div className="chat-container">
-      <div className="chat-header">
-        <img src="https://via.placeholder.com/40?text=M" alt="Manan Logo" className="company-logo" />
-        <h2>Manan Chat</h2>
+      <h1>Chat with Manan</h1>
+      <div className="controls">
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search messages..."
-          className="search-input"
         />
-        <button className="history-btn" onClick={() => setShowHistory(!showHistory)}>
-          {showHistory ? "Hide History" : "Show History"}
-        </button>
+        <label>
+          <input
+            type="checkbox"
+            checked={showHistory}
+            onChange={(e) => setShowHistory(e.target.checked)}
+          />
+          Show History
+        </label>
+        <select value={industry} onChange={(e) => setIndustry(e.target.value)}>
+          <option value="Solopreneur/Tech">Solopreneur/Tech</option>
+          <option value="Business">Business</option>
+          <option value="Education">Education</option>
+        </select>
       </div>
-      <div className="chat-messages">
+      <div className="messages">
         {messages.map((msg) => (
-          <div key={msg.id} className="message">
+          <div key={msg.id} className={`message ${msg.sender}`}>
             {editingId === msg.id ? (
-              <>
-                <input value={editText} onChange={(e) => setEditText(e.target.value)} />
-                <button onClick={() => handleSaveEdit(msg.id)}>Save</button>
-              </>
+              <div>
+                <input
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                />
+                <button onClick={handleSaveEdit}>Save</button>
+              </div>
             ) : (
-              <>
-                <strong>{msg.sender}</strong> <span className="timestamp">[{msg.timestamp}]</span>: {msg.text}
-                <span className="word-count">({msg.wordCount} words)</span>
-                {msg.sender === "You" && (
-                  <button className="edit-btn" onClick={() => handleEdit(msg.id, msg.text)}>Edit</button>
-                )}
-                <button className="delete-btn" onClick={() => handleDelete(msg.id)}>Delete</button>
-                {msg.sender === "Manan" && (
-                  <>
-                    <button className="copy-btn" onClick={() => handleCopy(msg.text)}>Copy</button>
-                    <button className="mindmap-btn" onClick={() => handleMindMap(msg.text)}>Mind Map</button>
-                  </>
-                )}
-              </>
+              <div>
+                <p>{msg.text}</p>
+                <span>{msg.timestamp}</span>
+                <button onClick={() => handleEdit(msg.id)}>Edit</button>
+              </div>
             )}
           </div>
         ))}
-        {loading && <div className="message loading">Manan: Thinking...</div>}
-        {typing && !loading && <div className="message typing">You are typing...</div>}
         <div ref={messagesEndRef} />
       </div>
-      <div className="chat-input">
-        <select value={industry} onChange={(e) => setIndustry(e.target.value)}>
-          <option value="Solopreneur/Tech">Solopreneur/Tech</option>
-          <option value="Retail">Retail</option>
-          <option value="Finance">Finance</option>
-        </select>
+      <div className="input-container">
         <input
           type="text"
           value={inputValue}
-          onChange={(e) => { setInputValue(e.target.value); setTyping(true); }}
-          placeholder="Type your thoughts..."
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Type a message..."
           disabled={loading}
         />
-        <button onClick={handleSend} disabled={loading}>{loading ? "Wait" : "Send"}</button>
-        <button className="clear" onClick={handleClear}>Clear Chat</button>
+        <button onClick={handleSendMessage} disabled={loading}>
+          {loading ? 'Sending...' : 'Send'}
+        </button>
       </div>
+      {typing && <p>Manan is typing...</p>}
     </div>
   );
 }
